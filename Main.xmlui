@@ -67,19 +67,19 @@
 
     <HStack width="100%" gap="$gap-normal" wrapContent="true" verticalAlignment="start">
 
-      <VStack width="14rem" minWidth="12rem" gap="$gap-tight">
+      <VStack width="16rem" minWidth="14rem" gap="$gap-tight">
         <Text variant="secondary" fontSize="$fontSize-sm" fontWeight="semibold">CITIES</Text>
         <Items data="{cities}">
-          <Card
-            onClick="() => {
-              selectedCity = $item;
-              cityInput = $item;
+          <CitySidebarRow
+            city="{$item}"
+            tempUnit="{tempUnit}"
+            selected="{$item === selectedCity}"
+            onSelect="(city) => {
+              selectedCity = city;
+              cityInput = city;
               errorMessage = '';
-              try { localStorage.setItem('weather.selectedCity', $item); } catch (e) {}
-            }"
-            backgroundColor="{$item === selectedCity ? '$color-primary-100' : '$color-surface-50'}">
-            <Text fontWeight="{$item === selectedCity ? 'bold' : 'semibold'}">{$item}</Text>
-          </Card>
+              try { localStorage.setItem('weather.selectedCity', city); } catch (e) {}
+            }" />
         </Items>
       </VStack>
 

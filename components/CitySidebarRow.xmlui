@@ -1,0 +1,37 @@
+<Component name="CitySidebarRow">
+  <DataSource
+    id="rowData"
+    url="https://wttr.in/{$props.city}?format=j1"
+    errorNotificationMessage="" />
+
+  <Card
+    onClick="() => $props.onSelect && $props.onSelect($props.city)"
+    backgroundColor="{$props.selected ? '$color-primary-100' : '$color-surface-50'}"
+    paddingVertical="$space-2"
+    paddingHorizontal="$space-3">
+    <VStack gap="$space-1">
+      <HStack verticalAlignment="center">
+        <Text fontWeight="{$props.selected ? 'bold' : 'semibold'}">
+          {$props.city}
+        </Text>
+        <SpaceFiller />
+        <Text fontSize="$fontSize-lg" fontWeight="bold" when="{rowData.loaded}">
+          {$props.tempUnit === 'C'
+            ? rowData.value.current_condition[0].temp_C
+            : rowData.value.current_condition[0].temp_F}°
+        </Text>
+        <Spinner when="{rowData.inProgress}" size="xs" />
+      </HStack>
+      <HStack verticalAlignment="center" when="{rowData.loaded}">
+        <Text variant="secondary" fontSize="$fontSize-sm">
+          {rowData.value.current_condition[0].weatherDesc[0].value}
+        </Text>
+        <SpaceFiller />
+        <Text variant="secondary" fontSize="$fontSize-sm">
+          H:{$props.tempUnit === 'C' ? rowData.value.weather[0].maxtempC : rowData.value.weather[0].maxtempF}°
+          L:{$props.tempUnit === 'C' ? rowData.value.weather[0].mintempC : rowData.value.weather[0].mintempF}°
+        </Text>
+      </HStack>
+    </VStack>
+  </Card>
+</Component>
