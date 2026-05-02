@@ -7,6 +7,27 @@
     <!-- <script src="https://xmlui.org/xmlui.js"></script> -->
     <script src="/xmlui/xmlui-standalone.umd.js"></script>
     <script src="/xmlui/xs-trace.js"></script>
+    <!-- jsx-runtime shim for extension UMDs (see xmlui-dnd-list/BUILD_LOG.md) -->
+    <script>
+      (function () {
+        var R = window.React;
+        if (!R || window.react_jsx_runtime) return;
+        function jsx(type, props, key) {
+          var p = props || {};
+          var children = p.children;
+          var rest = {};
+          for (var k in p) if (k !== "children") rest[k] = p[k];
+          if (key !== undefined) rest.key = key;
+          if (children === undefined) return R.createElement(type, rest);
+          return R.createElement.apply(
+            R,
+            [type, rest].concat(Array.isArray(children) ? children : [children]),
+          );
+        }
+        window.react_jsx_runtime = { jsx: jsx, jsxs: jsx, Fragment: R.Fragment };
+      })();
+    </script>
+    <script src="/xmlui/xmlui-dnd-list.js"></script>
   </head>
   <body></body>
 </html>

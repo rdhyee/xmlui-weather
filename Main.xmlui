@@ -1,4 +1,5 @@
 <App
+  xmlns:Dnd="component-ns:XMLUIDndList"
   var.cities="{(() => { try { const s = localStorage.getItem('weather.cities'); return s ? JSON.parse(s) : ['Albany, CA']; } catch (e) { return ['Albany, CA']; } })()}"
   var.selectedCity="{(() => { try { return localStorage.getItem('weather.selectedCity') || 'Albany, CA'; } catch (e) { return 'Albany, CA'; } })()}"
   var.cityInput=""
@@ -44,7 +45,12 @@
 
       <VStack width="16rem" minWidth="14rem" gap="$gap-tight">
         <Text variant="secondary" fontSize="$fontSize-sm" fontWeight="semibold">CITIES</Text>
-        <Items data="{cities}">
+        <Dnd:DndItems
+          data="{cities}"
+          onReorder="(newOrder) => {
+            cities = newOrder;
+            try { localStorage.setItem('weather.cities', JSON.stringify(newOrder)); } catch (e) {}
+          }">
           <CitySidebarRow
             city="{$item}"
             tempUnit="{tempUnit}"
@@ -83,7 +89,7 @@
               cities = newCities;
               try { localStorage.setItem('weather.cities', JSON.stringify(newCities)); } catch (e) {}
             }" />
-        </Items>
+        </Dnd:DndItems>
 
         <VStack gap="$space-1" paddingTop="$space-2">
           <TextBox
