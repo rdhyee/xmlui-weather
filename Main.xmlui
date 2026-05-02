@@ -1,0 +1,153 @@
+<App
+  var.city="Albany, CA"
+  var.searchCity="Albany, CA"
+  var.errorMessage=""
+  var.tempUnit="F"
+  var.condition="{ weatherData.value.current_condition[0] }"
+  var.nearest_area="{ weatherData.value.nearest_area[0] }"
+  var.astronomy="{ weatherData.value.weather[0].astronomy[0] }"
+  var.region="{ nearest_area.region && nearest_area.region[0] && nearest_area.region[0].value }"
+>
+  <AppHeader>
+    <property name="profileMenuTemplate">
+      <Inspector />
+    </property>
+  </AppHeader>
+
+  <DataSource
+    id="weatherData"
+    url="https://wttr.in/{searchCity}?format=j1"
+    errorNotificationMessage=""
+    onError="(error) => { errorMessage = 'Could not find weather data for ' + searchCity + '. Please check the city name.'; }" />
+
+  <VStack horizontalAlignment="center" width="100%">
+
+    <HStack horizontalAlignment="center">
+      <H1>
+      Weather Dashboard
+    </H1>
+    </HStack>
+
+    <HStack width="100%" verticalAlignment="center">
+       <TextBox
+         id="cityInput"
+         enabled="{!weatherData.inProgress}"
+         placeholder="Enter city name..."
+         initialValue="{city}"
+         minWidth="10rem"
+         width="10rem"
+         onDidChange="(val) => { city = val; }" />
+       <Button
+         width="10rem"
+         label="Get Weather"
+         enabled="{city.trim().length > 0}"
+         onClick="() => { searchCity = city; errorMessage = ''}" />
+       <RadioGroup
+         initialValue="{tempUnit}"
+         onDidChange="(val) => { tempUnit = val; }">
+	 <HStack>
+           <Option label="°F" value="F" />
+           <Option label="°C" value="C" />
+	 </HStack>
+       </RadioGroup>
+     </HStack>
+
+    <Text when="{errorMessage}" variant="destructive">
+      {errorMessage}
+    </Text>
+
+    <VStack
+      when="{weatherData.inProgress}"
+      horizontalAlignment="center">
+      <Spinner />
+      <Text variant="secondary">
+        Loading weather data...
+      </Text>
+    </VStack>
+
+    <VStack
+      when="{weatherData.loaded && weatherData.value && !errorMessage && city === searchCity}"
+      width="100%"
+      maxWidth="42rem"
+      horizontalAlignment="center"
+      backgroundColor="$color-background-secondary">
+
+      <VStack horizontalAlignment="center" gap="0">
+        <H2>
+          {searchCity}
+        </H2>
+        <Text breakMode="word" variant="secondary">
+          { region ? region + ', ' : ''}{nearest_area.country[0].value}
+        </Text>
+      </VStack>
+
+      <HStack
+        verticalAlignment="center"
+        horizontalAlignment="center"
+        wrapContent="true">
+        <HStack verticalAlignment="center">
+          <Text fontSize="4rem" fontWeight="bold">
+            {tempUnit === 'C' ? condition.temp_C : condition.temp_F}°
+          </Text>
+          <Text fontSize="2rem" variant="secondary">
+            {tempUnit}
+          </Text>
+          <Text fontSize="$fontSize-xl" fontWeight="semibold">
+            {condition.weatherDesc[0].value}
+          </Text>
+        </HStack>
+        <Text variant="secondary" fontSize="$fontSize-lg">
+          Feels like {tempUnit === 'C' ? condition.FeelsLikeC : condition.FeelsLikeF}°{tempUnit}
+        </Text>
+      </HStack>
+
+      <HStack horizontalAlignment="center" width="100%" wrapContent="true">
+        <WeatherStat
+          width="9rem"
+          label="Cloud Cover"
+          value="{condition.cloudcover}%" />
+        <WeatherStat
+          width="9rem"
+          label="Humidity"
+          value="{condition.humidity}%" />
+        <WeatherStat
+          width="9rem"
+          label="Wind Speed"
+          value="{condition.windspeedMiles} mph" />
+        <WeatherStat
+          width="9rem"
+          label="Pressure"
+          value="{condition.pressure} mb" />
+      </HStack>
+
+      <HStack horizontalAlignment="center" width="100%" wrapContent="true">
+        <WeatherStat
+          width="9rem"
+          label="Sunrise"
+          value="{astronomy.sunrise}" />
+        <WeatherStat
+          width="9rem"
+          label="Sunset"
+          value="{astronomy.sunset}" />
+        <WeatherStat
+          width="9rem"
+          label="Moonrise"
+          value="{astronomy.moonrise}" />
+        <WeatherStat
+          width="9rem"
+          label="Moonset"
+          value="{astronomy.moonset}" />
+      </HStack>
+
+    </VStack>
+
+    <Text
+      when="{!weatherData.loaded && !weatherData.inProgress}"
+      variant="secondary"
+      horizontalAlignment="center">
+      Enter a city name to see current weather conditions
+    </Text>
+
+  </VStack>
+
+</App>
