@@ -5,7 +5,7 @@
     errorNotificationMessage="" />
 
   <Card
-    onClick="() => $props.onSelect && $props.onSelect($props.city)"
+    onClick="emitEvent('select', $props.city)"
     backgroundColor="{$props.selected ? '$color-primary-100' : '$color-surface-50'}"
     paddingVertical="$space-2"
     paddingHorizontal="$space-3">
@@ -20,7 +20,7 @@
             ? rowData.value.current_condition[0].temp_C
             : rowData.value.current_condition[0].temp_F}°
         </Text>
-        <Spinner when="{rowData.inProgress}" size="xs" />
+        <Spinner when="{rowData.inProgress}" />
       </HStack>
       <HStack verticalAlignment="center" when="{rowData.loaded}">
         <Text variant="secondary" fontSize="$fontSize-sm">
@@ -38,20 +38,20 @@
           variant="ghost"
           size="xs"
           enabled="{$props.canMoveUp}"
-          onClick="(ev) => { if (ev && ev.stopPropagation) ev.stopPropagation(); $props.onMoveUp && $props.onMoveUp($props.city); }" />
+          onClick="emitEvent('moveUp', $props.city)" />
         <Button
           icon="chevrondown"
           variant="ghost"
           size="xs"
           enabled="{$props.canMoveDown}"
-          onClick="(ev) => { if (ev && ev.stopPropagation) ev.stopPropagation(); $props.onMoveDown && $props.onMoveDown($props.city); }" />
+          onClick="emitEvent('moveDown', $props.city)" />
         <SpaceFiller />
         <Button
           icon="trash"
           variant="ghost"
           size="xs"
           themeColor="attention"
-          onClick="(ev) => { if (ev && ev.stopPropagation) ev.stopPropagation(); $props.onRemove && $props.onRemove($props.city); }" />
+          onClick="emitEvent('remove', $props.city)" />
       </HStack>
     </VStack>
   </Card>
