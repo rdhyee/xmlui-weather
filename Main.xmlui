@@ -65,6 +65,26 @@
       {errorMessage}
     </Text>
 
+    <HStack width="100%" gap="$gap-normal" wrapContent="true" verticalAlignment="start">
+
+      <VStack width="14rem" minWidth="12rem" gap="$gap-tight">
+        <Text variant="secondary" fontSize="$fontSize-sm" fontWeight="semibold">CITIES</Text>
+        <Items data="{cities}">
+          <Card
+            onClick="() => {
+              selectedCity = $item;
+              cityInput = $item;
+              errorMessage = '';
+              try { localStorage.setItem('weather.selectedCity', $item); } catch (e) {}
+            }"
+            backgroundColor="{$item === selectedCity ? '$color-primary-100' : '$color-surface-50'}">
+            <Text fontWeight="{$item === selectedCity ? 'bold' : 'semibold'}">{$item}</Text>
+          </Card>
+        </Items>
+      </VStack>
+
+      <VStack width="100%" horizontalAlignment="center" minWidth="0">
+
     <VStack
       when="{weatherData.inProgress}"
       horizontalAlignment="center">
@@ -190,6 +210,10 @@
       horizontalAlignment="center">
       Enter a city name to see current weather conditions
     </Text>
+
+      </VStack>
+
+    </HStack>
 
   </VStack>
 
