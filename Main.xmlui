@@ -74,11 +74,41 @@
             city="{$item}"
             tempUnit="{tempUnit}"
             selected="{$item === selectedCity}"
+            canMoveUp="{!$isFirst}"
+            canMoveDown="{!$isLast}"
             onSelect="(city) => {
               selectedCity = city;
               cityInput = city;
               errorMessage = '';
               try { localStorage.setItem('weather.selectedCity', city); } catch (e) {}
+            }"
+            onRemove="(city) => {
+              const newCities = cities.filter(c => c !== city);
+              cities = newCities.length ? newCities : ['Albany, CA'];
+              if (selectedCity === city) {
+                selectedCity = cities[0];
+                cityInput = cities[0];
+                try { localStorage.setItem('weather.selectedCity', cities[0]); } catch (e) {}
+              }
+              try { localStorage.setItem('weather.cities', JSON.stringify(cities)); } catch (e) {}
+            }"
+            onMoveUp="(city) => {
+              const i = cities.indexOf(city);
+              if (i <= 0) return;
+              const newCities = [...cities];
+              newCities[i - 1] = city;
+              newCities[i] = cities[i - 1];
+              cities = newCities;
+              try { localStorage.setItem('weather.cities', JSON.stringify(newCities)); } catch (e) {}
+            }"
+            onMoveDown="(city) => {
+              const i = cities.indexOf(city);
+              if (i < 0 || i >= cities.length - 1) return;
+              const newCities = [...cities];
+              newCities[i + 1] = city;
+              newCities[i] = cities[i + 1];
+              cities = newCities;
+              try { localStorage.setItem('weather.cities', JSON.stringify(newCities)); } catch (e) {}
             }" />
         </Items>
       </VStack>

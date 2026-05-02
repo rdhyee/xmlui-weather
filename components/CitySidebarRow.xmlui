@@ -32,6 +32,27 @@
           L:{$props.tempUnit === 'C' ? rowData.value.weather[0].mintempC : rowData.value.weather[0].mintempF}°
         </Text>
       </HStack>
+      <HStack verticalAlignment="center" gap="$space-1">
+        <Button
+          icon="chevronup"
+          variant="ghost"
+          size="xs"
+          enabled="{$props.canMoveUp}"
+          onClick="(ev) => { if (ev && ev.stopPropagation) ev.stopPropagation(); $props.onMoveUp && $props.onMoveUp($props.city); }" />
+        <Button
+          icon="chevrondown"
+          variant="ghost"
+          size="xs"
+          enabled="{$props.canMoveDown}"
+          onClick="(ev) => { if (ev && ev.stopPropagation) ev.stopPropagation(); $props.onMoveDown && $props.onMoveDown($props.city); }" />
+        <SpaceFiller />
+        <Button
+          icon="trash"
+          variant="ghost"
+          size="xs"
+          themeColor="attention"
+          onClick="(ev) => { if (ev && ev.stopPropagation) ev.stopPropagation(); $props.onRemove && $props.onRemove($props.city); }" />
+      </HStack>
     </VStack>
   </Card>
 </Component>
