@@ -40,7 +40,7 @@
       {errorMessage}
     </Text>
 
-    <HStack width="100%" gap="$gap-normal" wrapContent="true" verticalAlignment="start">
+    <HStack width="100%" gap="$gap-normal" verticalAlignment="start">
 
       <VStack width="16rem" minWidth="14rem" gap="$gap-tight">
         <Text variant="secondary" fontSize="$fontSize-sm" fontWeight="semibold">CITIES</Text>
@@ -110,7 +110,7 @@
         </VStack>
       </VStack>
 
-      <VStack width="100%" minWidth="0" gap="$gap-normal">
+      <VStack width="*" minWidth="0" gap="$gap-normal">
 
         <VStack
           when="{weatherData.inProgress}"
