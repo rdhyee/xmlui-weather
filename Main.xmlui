@@ -1,7 +1,7 @@
 <App
   var.cities="{(() => { try { const s = localStorage.getItem('weather.cities'); return s ? JSON.parse(s) : ['Albany, CA']; } catch (e) { return ['Albany, CA']; } })()}"
   var.selectedCity="{(() => { try { return localStorage.getItem('weather.selectedCity') || 'Albany, CA'; } catch (e) { return 'Albany, CA'; } })()}"
-  var.cityInput="{selectedCity}"
+  var.cityInput=""
   var.errorMessage=""
   var.tempUnit="F"
   var.condition="{ weatherData.value.current_condition[0] }"
@@ -21,45 +21,20 @@
     errorNotificationMessage=""
     onError="(error) => { errorMessage = 'Could not find weather data for ' + selectedCity + '. Please check the city name.'; }" />
 
-  <VStack horizontalAlignment="center" width="100%">
-
-    <HStack horizontalAlignment="center">
-      <H1>
-      Weather Dashboard
-    </H1>
-    </HStack>
+  <VStack width="100%" gap="$gap-normal" padding="$space-3">
 
     <HStack width="100%" verticalAlignment="center">
-       <TextBox
-         id="cityInputBox"
-         enabled="{!weatherData.inProgress}"
-         placeholder="Enter city name..."
-         initialValue="{cityInput}"
-         minWidth="10rem"
-         width="10rem"
-         onDidChange="(val) => { cityInput = val; }" />
-       <Button
-         width="10rem"
-         label="Get Weather"
-         enabled="{cityInput.trim().length > 0}"
-         onClick="() => {
-           const trimmed = cityInput.trim();
-           const newCities = cities.includes(trimmed) ? cities : [...cities, trimmed];
-           cities = newCities;
-           selectedCity = trimmed;
-           errorMessage = '';
-           try { localStorage.setItem('weather.cities', JSON.stringify(newCities)); } catch (e) {}
-           try { localStorage.setItem('weather.selectedCity', trimmed); } catch (e) {}
-         }" />
-       <RadioGroup
-         initialValue="{tempUnit}"
-         onDidChange="(val) => { tempUnit = val; }">
-	 <HStack>
-           <Option label="°F" value="F" />
-           <Option label="°C" value="C" />
-	 </HStack>
-       </RadioGroup>
-     </HStack>
+      <H1>Weather Dashboard</H1>
+      <SpaceFiller />
+      <RadioGroup
+        initialValue="{tempUnit}"
+        onDidChange="(val) => { tempUnit = val; }">
+        <HStack>
+          <Option label="°F" value="F" />
+          <Option label="°C" value="C" />
+        </HStack>
+      </RadioGroup>
+    </HStack>
 
     <Text when="{errorMessage}" variant="destructive">
       {errorMessage}
@@ -78,7 +53,6 @@
             canMoveDown="{!$isLast}"
             onSelect="(city) => {
               selectedCity = city;
-              cityInput = city;
               errorMessage = '';
               try { localStorage.setItem('weather.selectedCity', city); } catch (e) {}
             }"
@@ -87,7 +61,6 @@
               cities = newCities.length ? newCities : ['Albany, CA'];
               if (selectedCity === city) {
                 selectedCity = cities[0];
-                cityInput = cities[0];
                 try { localStorage.setItem('weather.selectedCity', cities[0]); } catch (e) {}
               }
               try { localStorage.setItem('weather.cities', JSON.stringify(cities)); } catch (e) {}
@@ -111,135 +84,130 @@
               try { localStorage.setItem('weather.cities', JSON.stringify(newCities)); } catch (e) {}
             }" />
         </Items>
+
+        <VStack gap="$space-1" paddingTop="$space-2">
+          <TextBox
+            id="addCityBox"
+            enabled="{!weatherData.inProgress}"
+            placeholder="Add a city..."
+            initialValue="{cityInput}"
+            onDidChange="(val) => { cityInput = val; }" />
+          <Button
+            label="Add"
+            width="100%"
+            enabled="{cityInput.trim().length > 0}"
+            onClick="() => {
+              const trimmed = cityInput.trim();
+              if (!trimmed) return;
+              const newCities = cities.includes(trimmed) ? cities : [...cities, trimmed];
+              cities = newCities;
+              selectedCity = trimmed;
+              cityInput = '';
+              errorMessage = '';
+              try { localStorage.setItem('weather.cities', JSON.stringify(newCities)); } catch (e) {}
+              try { localStorage.setItem('weather.selectedCity', trimmed); } catch (e) {}
+            }" />
+        </VStack>
       </VStack>
 
-      <VStack width="100%" horizontalAlignment="center" minWidth="0">
+      <VStack width="100%" minWidth="0" gap="$gap-normal">
 
-    <VStack
-      when="{weatherData.inProgress}"
-      horizontalAlignment="center">
-      <Spinner />
-      <Text variant="secondary">
-        Loading weather data...
-      </Text>
-    </VStack>
+        <VStack
+          when="{weatherData.inProgress}"
+          horizontalAlignment="center">
+          <Spinner />
+          <Text variant="secondary">
+            Loading weather data...
+          </Text>
+        </VStack>
 
-    <VStack
-      when="{weatherData.loaded && weatherData.value && !errorMessage && cityInput === selectedCity}"
-      width="100%"
-      maxWidth="42rem"
-      horizontalAlignment="center"
-      backgroundColor="$color-background-secondary">
+        <VStack
+          when="{weatherData.loaded && weatherData.value && !errorMessage}"
+          width="100%"
+          maxWidth="42rem"
+          backgroundColor="$color-background-secondary"
+          padding="$space-3"
+          borderRadius="$borderRadius">
 
-      <VStack horizontalAlignment="center" gap="0">
-        <H2>
-          {selectedCity}
-        </H2>
-        <Text breakMode="word" variant="secondary">
-          { region ? region + ', ' : ''}{nearest_area.country[0].value}
+          <VStack gap="0">
+            <H2>{selectedCity}</H2>
+            <Text breakMode="word" variant="secondary">
+              { region ? region + ', ' : ''}{nearest_area.country[0].value}
+            </Text>
+          </VStack>
+
+          <HStack verticalAlignment="center" wrapContent="true">
+            <HStack verticalAlignment="center">
+              <Text fontSize="4rem" fontWeight="bold">
+                {tempUnit === 'C' ? condition.temp_C : condition.temp_F}°
+              </Text>
+              <Text fontSize="2rem" variant="secondary">
+                {tempUnit}
+              </Text>
+              <Text fontSize="$fontSize-xl" fontWeight="semibold">
+                {condition.weatherDesc[0].value}
+              </Text>
+            </HStack>
+            <Text variant="secondary" fontSize="$fontSize-lg">
+              Feels like {tempUnit === 'C' ? condition.FeelsLikeC : condition.FeelsLikeF}°{tempUnit}
+            </Text>
+          </HStack>
+
+          <HStack width="100%" wrapContent="true">
+            <WeatherStat width="9rem" label="Cloud Cover" value="{condition.cloudcover}%" />
+            <WeatherStat width="9rem" label="Humidity" value="{condition.humidity}%" />
+            <WeatherStat width="9rem" label="Wind Speed" value="{condition.windspeedMiles} mph" />
+            <WeatherStat width="9rem" label="Pressure" value="{condition.pressure} mb" />
+          </HStack>
+
+          <HStack width="100%" wrapContent="true">
+            <WeatherStat width="9rem" label="Sunrise" value="{astronomy.sunrise}" />
+            <WeatherStat width="9rem" label="Sunset" value="{astronomy.sunset}" />
+            <WeatherStat width="9rem" label="Moonrise" value="{astronomy.moonrise}" />
+            <WeatherStat width="9rem" label="Moonset" value="{astronomy.moonset}" />
+          </HStack>
+
+          <VStack width="100%">
+            <H3>3-Day Forecast</H3>
+            <HStack wrapContent="true" gap="$gap-normal">
+              <Items data="{weatherData.value.weather}">
+                <VStack
+                  width="11rem"
+                  paddingHorizontal="$space-3"
+                  paddingVertical="$space-2"
+                  backgroundColor="$color-surface-100"
+                  borderRadius="$borderRadius"
+                  gap="$gap-tight"
+                  horizontalAlignment="center">
+                  <Text fontWeight="semibold">
+                    {new Date($item.date + 'T00:00:00').toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'})}
+                  </Text>
+                  <Text variant="secondary" fontSize="$fontSize-sm">
+                    {$item.hourly[4].weatherDesc[0].value}
+                  </Text>
+                  <HStack gap="$gap-tight" verticalAlignment="center">
+                    <Text fontSize="$fontSize-lg" fontWeight="bold">
+                      {tempUnit === 'C' ? $item.maxtempC : $item.maxtempF}°
+                    </Text>
+                    <Text variant="secondary">
+                      / {tempUnit === 'C' ? $item.mintempC : $item.mintempF}°
+                    </Text>
+                  </HStack>
+                  <Text variant="secondary" fontSize="$fontSize-sm">
+                    💧 {$item.hourly[4].chanceofrain}%
+                  </Text>
+                </VStack>
+              </Items>
+            </HStack>
+          </VStack>
+
+        </VStack>
+
+        <Text
+          when="{!weatherData.loaded && !weatherData.inProgress}"
+          variant="secondary">
+          Select a city from the sidebar or add one below.
         </Text>
-      </VStack>
-
-      <HStack
-        verticalAlignment="center"
-        horizontalAlignment="center"
-        wrapContent="true">
-        <HStack verticalAlignment="center">
-          <Text fontSize="4rem" fontWeight="bold">
-            {tempUnit === 'C' ? condition.temp_C : condition.temp_F}°
-          </Text>
-          <Text fontSize="2rem" variant="secondary">
-            {tempUnit}
-          </Text>
-          <Text fontSize="$fontSize-xl" fontWeight="semibold">
-            {condition.weatherDesc[0].value}
-          </Text>
-        </HStack>
-        <Text variant="secondary" fontSize="$fontSize-lg">
-          Feels like {tempUnit === 'C' ? condition.FeelsLikeC : condition.FeelsLikeF}°{tempUnit}
-        </Text>
-      </HStack>
-
-      <HStack horizontalAlignment="center" width="100%" wrapContent="true">
-        <WeatherStat
-          width="9rem"
-          label="Cloud Cover"
-          value="{condition.cloudcover}%" />
-        <WeatherStat
-          width="9rem"
-          label="Humidity"
-          value="{condition.humidity}%" />
-        <WeatherStat
-          width="9rem"
-          label="Wind Speed"
-          value="{condition.windspeedMiles} mph" />
-        <WeatherStat
-          width="9rem"
-          label="Pressure"
-          value="{condition.pressure} mb" />
-      </HStack>
-
-      <HStack horizontalAlignment="center" width="100%" wrapContent="true">
-        <WeatherStat
-          width="9rem"
-          label="Sunrise"
-          value="{astronomy.sunrise}" />
-        <WeatherStat
-          width="9rem"
-          label="Sunset"
-          value="{astronomy.sunset}" />
-        <WeatherStat
-          width="9rem"
-          label="Moonrise"
-          value="{astronomy.moonrise}" />
-        <WeatherStat
-          width="9rem"
-          label="Moonset"
-          value="{astronomy.moonset}" />
-      </HStack>
-
-      <VStack width="100%" horizontalAlignment="center">
-        <H3>3-Day Forecast</H3>
-        <HStack horizontalAlignment="center" wrapContent="true" gap="$gap-normal">
-          <Items data="{weatherData.value.weather}">
-            <VStack
-              width="11rem"
-              paddingHorizontal="$space-3"
-              paddingVertical="$space-2"
-              backgroundColor="$color-surface-100"
-              borderRadius="$borderRadius"
-              gap="$gap-tight"
-              horizontalAlignment="center">
-              <Text fontWeight="semibold">
-                {new Date($item.date + 'T00:00:00').toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'})}
-              </Text>
-              <Text variant="secondary" fontSize="$fontSize-sm">
-                {$item.hourly[4].weatherDesc[0].value}
-              </Text>
-              <HStack gap="$gap-tight" verticalAlignment="center">
-                <Text fontSize="$fontSize-lg" fontWeight="bold">
-                  {tempUnit === 'C' ? $item.maxtempC : $item.maxtempF}°
-                </Text>
-                <Text variant="secondary">
-                  / {tempUnit === 'C' ? $item.mintempC : $item.mintempF}°
-                </Text>
-              </HStack>
-              <Text variant="secondary" fontSize="$fontSize-sm">
-                💧 {$item.hourly[4].chanceofrain}%
-              </Text>
-            </VStack>
-          </Items>
-        </HStack>
-      </VStack>
-
-    </VStack>
-
-    <Text
-      when="{!weatherData.loaded && !weatherData.inProgress}"
-      variant="secondary"
-      horizontalAlignment="center">
-      Enter a city name to see current weather conditions
-    </Text>
 
       </VStack>
 
