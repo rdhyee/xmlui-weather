@@ -92,3 +92,7 @@ the Inspector icon to see semantic traces of clicks, data binds, and HTTP calls;
 - The forecast card reads `hourly[4]` (midday) as the day's representative condition — a
   simplification, not a daily aggregate.
 - wttr.in rate-limits. Adding several cities in quick succession can leave rows spinning.
+
+## License
+
+[MIT](./LICENSE) © 2026 Raymond Yee
